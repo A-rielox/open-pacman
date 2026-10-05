@@ -33,6 +33,11 @@ function targetFor( game, g ) {
     const d = window.DIRS[ p.dir ];
     return { x: Math.round( p.x ) + 2 * d.x, y: Math.round( p.y ) + 2 * d.y };
   }
+  if ( g.kind === 'flanker' ) {
+    const chaser = game.ghosts.find( ( o ) => o.kind === 'chaser' );
+    if ( !chaser ) return undefined;
+    return { x: 2 * Math.round( chaser.x ) - Math.round( p.x ), y: 2 * Math.round( chaser.y ) - Math.round( p.y ) };
+  }
   return undefined;
 }
 
