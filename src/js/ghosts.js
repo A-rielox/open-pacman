@@ -12,11 +12,24 @@ function updateGhostRelease( g ) {
   return g.released;
 }
 
-// Direcciones abiertas para el fantasma: sin invertir, sin muros/puerta.
-// Si no queda ninguna, se permite invertir para desbloquear.
+// Hay otro fantasma en la celda a la que apunta dir?
+function blockedByGhost( game, g, dir ) {
+  const d = window.DIRS[ dir ];
+  const x = Math.round( g.x ) + d.x;
+  const y = Math.round( g.y ) + d.y;
+  return game.ghosts.some(
+    ( o ) => o !== g && Math.round( o.x ) === x && Math.round( o.y ) === y
+  );
+}
+
+// Direcciones abiertas para el fantasma: sin invertir, sin muros/puerta,
+// sin fantasmas. Si no queda ninguna, se permite invertir para desbloquear.
 function openDirs( game, g ) {
   const forward = Object.keys( window.DIRS ).filter(
-    ( dir ) => dir !== window.OPPOSITE[ g.dir ] && window.canMove( game.grid, g.x, g.y, dir, 'ghost' )
+    ( dir ) =>
+      dir !== window.OPPOSITE[ g.dir ] &&
+      window.canMove( game.grid, g.x, g.y, dir, 'ghost' ) &&
+      !blockedByGhost( game, g, dir )
   );
   return forward.length ? forward : [ window.OPPOSITE[ g.dir ] ];
 }
@@ -37,6 +50,11 @@ function targetFor( game, g ) {
     const chaser = game.ghosts.find( ( o ) => o.kind === 'chaser' );
     if ( !chaser ) return undefined;
     return { x: 2 * Math.round( chaser.x ) - Math.round( p.x ), y: 2 * Math.round( chaser.y ) - Math.round( p.y ) };
+  }
+  if ( g.kind === 'shy' ) {
+    const dist = Math.abs( Math.round( g.x ) - Math.round( p.x ) ) + Math.abs( Math.round( g.y ) - Math.round( p.y ) );
+    if ( dist > 8 ) return { x: Math.round( p.x ), y: Math.round( p.y ) };
+    return null; // de cerca se queda quieto
   }
   return undefined;
 }
