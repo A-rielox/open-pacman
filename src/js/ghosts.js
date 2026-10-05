@@ -25,8 +25,13 @@ function openDirs( game, g ) {
 //   {x,y} -> perseguir · undefined -> aleatorio · null -> detenerse
 function targetFor( game, g ) {
   if ( g.y >= PEN_ROW ) return window.PEN_EXIT; // salir de la pen
+  const p = game.pacman;
   if ( g.kind === 'chaser' ) {
-    return { x: Math.round( game.pacman.x ), y: Math.round( game.pacman.y ) };
+    return { x: Math.round( p.x ), y: Math.round( p.y ) };
+  }
+  if ( g.kind === 'ambusher' ) {
+    const d = window.DIRS[ p.dir ];
+    return { x: Math.round( p.x ) + 2 * d.x, y: Math.round( p.y ) + 2 * d.y };
   }
   return undefined;
 }
